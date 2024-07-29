@@ -3,8 +3,11 @@
 
 classdef Model
     properties
+        wheel_base = 0.2;
+        max_v = 0.1;
+    
         % bicycle model
-        systemModel = bicycleKinematics("WheelBase", 0.162, "VehicleSpeedRange", [-10, 10], "MaxSteeringAngle", pi / 3, "VehicleInputs", "VehicleSpeedSteeringAngle");
+        systemModel; % = bicycleKinematics("WheelBase", wheel_base, "VehicleSpeedRange", [-max_v, max_v], "MaxSteeringAngle", pi, "VehicleInputs", "VehicleSpeedSteeringAngle");
         % initialState will be 0, 0, 0 for simulated model
         initialState = [0, 0, 0];
         % simulated input for x, y
@@ -20,6 +23,7 @@ classdef Model
     
     methods
         function obj = Model()
+            obj.systemModel = bicycleKinematics("WheelBase", obj.wheel_base, "VehicleSpeedRange", [-obj.max_v, obj.max_v], "MaxSteeringAngle", pi/2, "VehicleInputs",  "VehicleSpeedSteeringAngle");
         end
         
         function obj = drive(obj, v, gamma, dt)
@@ -30,10 +34,17 @@ classdef Model
             obj.theta = mod(obj.theta + dot(3) * dt, 2*pi);
             obj.v = v;
             obj.gamma = gamma;
-        end        
-        function obj = driveOn(obj, dt)
-            obj = obj.drive(0, obj.gamma, dt);
+
+            % % send command to car
+            % Lspeed = v - (gamma * obj.wheel_base / 2);
+            % Rspeed = v + (gamma * obj.wheel_base / 2);
+            % 
+            % % Scale speeds to uint8 range (0-255)
+            % Lspeed = (max(min(Lspeed * 255 / obj.max_v, 255), 0));
+            % Rspeed = (max(min(Rspeed * 255 / obj.max_v, 255), 0));
+            % [Lspeed, Rspeed]
         end
+        
         function [x, y, theta, obj] = odom(obj)
             x = obj.x;
             y = obj.y;

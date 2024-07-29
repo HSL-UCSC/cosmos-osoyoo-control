@@ -9,22 +9,17 @@ DT = 0.4;
 % reference plan (imported from plan.m --> plan.mat)
 r_plan = matfile('plan_20_circle.mat').data;
 
-% car = Model();
- car = Car();
- %car = Dog(false);
- car.x = -1;
- car.y = -1;
+car = Model();
+% car = Car();
+% car.x = 0;
+% car.y = 0;
 controller = Basic_Control();
 % controller = PID_Control();
-% controller = MPC_Control(DT);
-% controller = PurePursuit_Control(r_plan', 1); % lookahead distance 0.5
-% for car, 1 for dog
-% controller = CustomPurePursuit_Control(r_plan', 1, DIST_THRESHOLD);
 
 plot(r_plan(1,:),r_plan(2,:));
 
- disp(r_plan(1, 1));
- disp(r_plan(2, 1));
+disp(r_plan(1, 1));
+disp(r_plan(2, 1));
 
 % index of the next point on the reference plan (starts as the first point)
 index = 1;
@@ -37,11 +32,11 @@ while true
     
     % find if the car is close enough to the next point on the reference plan
     [x_target, y_target, theta_target, index] = motion_plan(x, y, theta, r_plan, index, DIST_THRESHOLD);
-  %  [done, controller] = controller.done();
-  %  if index == -1 || done
-  %      break;
-  %  end
-
+    [done, controller] = controller.done();
+    if index == -1 || done
+        break;
+    end
+    
     plot(r_plan(1,:), r_plan(2,:), '-o', 'Color', 'k');
     xlabel('X')
     ylabel('Y')
@@ -50,27 +45,27 @@ while true
     hold on;
     
     % move the car to the next point on the reference plan
-%     car = car.driveOn(DT);
+    %     car = car.driveOn(DT);
     controller = controller.update(x, y, theta, x_target, y_target, theta_target);
-    [v, gamma, controller] = controller.get_control()
+    [v, gamma, controller] = controller.get_control();
     car = car.drive(v, gamma, DT);
     % record the data
-    recorded_data = [recorded_data; x, y, theta, x_target, y_target, theta_target, index, v, gamma];
+    recorded_data = [recorded_data; x, y, theta, x_target, y_target, theta_target, index, v, gamma]; %#ok<AGROW>
     
     % plot the car
     plot(x_target, y_target, '.', 'Color', 'r', 'MarkerSize', 20);
     quiver(x, y, ARROW_SCALE*cos(theta), ARROW_SCALE*sin(theta), 'Color', 'magenta', 'MaxHeadSize', ARROW_SCALE);
     quiver(x, y, ARROW_SCALE*cos(theta_target), ARROW_SCALE*sin(theta_target), 'Color', 'cyan', 'MaxHeadSize', ARROW_SCALE);
     plot(recorded_data(:,1), recorded_data(:,2), 'Color', 'b');
-    if isa(controller, 'MPC_Control') || isa(controller, 'PurePursuit_Control')
-        plot(controller.prediction(:,1), controller.prediction(:,2), 'Color', 'g');
-        plot(controller.prediction(end,1), controller.prediction(end,2), 'Color', 'g', 'Marker','x', 'MarkerSize', 20);
-    end
+    % if isa(controller, 'MPC_Control') || isa(controller, 'PurePursuit_Control')
+    %     plot(controller.prediction(:,1), controller.prediction(:,2), 'Color', 'g');
+    %     plot(controller.prediction(end,1), controller.prediction(end,2), 'Color', 'g', 'Marker','x', 'MarkerSize', 20);
+    % end
     hold off;
     drawnow;
-
+    
     %pause(DT/2);
-
+    
 end
 car.drive(0, 0, 0);
 % heading & target heading over time

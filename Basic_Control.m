@@ -33,24 +33,23 @@ classdef Basic_Control
             v = v + obj.max_v / 3 * abs(gamma / obj.max_gamma);
         end
 
-        function control_car(obj)
-            [v, gamma, ~] = obj.get_control();
-            Lspeed = v - (gamma * obj.wheel_base / 2);
-            Rspeed = v + (gamma * obj.wheel_base / 2);
+        % function control_car(obj)
+        %     [v, gamma, ~] = obj.get_control();
+        %     Lspeed = v - (gamma * obj.wheel_base / 2);
+        %     Rspeed = v + (gamma * obj.wheel_base / 2);
 
-            % Scale speeds to uint8 range (0-255)
-            Lspeed = (max(min(Lspeed * 255 / obj.max_v, 255), 0));
-            Rspeed = (max(min(Rspeed * 255 / obj.max_v, 255), 0));
-            clear;
-            clc;
-            udp = udpport;
+        %     % Scale speeds to uint8 range (0-255)
+        %     Lspeed = uint8(max(min(Lspeed * 255 / obj.max_v, 255), 0));
+        %     Rspeed = uint8(max(min(Rspeed * 255 / obj.max_v, 255), 0));
+            
+        %     udp = udpport;
 
-            % Send the commands via UDP
-            write(udp, "L"+100, 'uint8', '192.168.0.161', 8888);
-            write(udp, "R"+100, 'uint8', '192.168.0.161', 8888);
-        end
+        %     % Send the commands via UDP
+        %     write(udp, ["L" num2str(Lspeed)], 'uint8', '192.168.0.161', 8888);
+        %     write(udp, ["R" num2str(Rspeed)], 'uint8', '192.168.0.161', 8888);
+        % end
 
-        function [out, obj] = true(obj)
+        function [out, obj] = done(obj)
             out = false;
         end
     end
