@@ -1,0 +1,39 @@
+classdef Basic_Control
+    properties
+        max_v = 0.1;
+        max_gamma = deg2rad(40);
+        x;
+        y;
+        theta;
+        x_target;
+        y_target;
+        theta_target;
+    end
+    methods
+        function obj = Basic_Control()
+        end
+
+        function obj = update(obj, x, y, theta, x_target, y_target, theta_target)
+            obj.x = x;
+            obj.y = y;
+            obj.theta = theta;
+            obj.x_target = x_target;
+            obj.y_target = y_target;
+            obj.theta_target = theta_target;
+        end
+
+        function [v, gamma, obj] = get_control(obj)
+            v = min(obj.max_v *2 / 3, hypot(obj.x_target - obj.x, obj.y_target - obj.y));
+            gamma = mod(obj.theta_target - obj.theta, 2*pi);
+            if (gamma > pi)
+                gamma = gamma - 2*pi;
+            end
+            disp(gamma);
+            v = v + obj.max_v / 3 * abs(gamma/obj.max_gamma);
+        end
+
+        function [out, obj] = true(obj)
+            out = false;
+        end
+    end
+end
