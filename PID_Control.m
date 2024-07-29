@@ -43,7 +43,7 @@ classdef PID_Control
             end
         end
 
-        function [out, obj] = true(obj)
+        function [out, obj] = done(obj)
             out = false;
         end
     end

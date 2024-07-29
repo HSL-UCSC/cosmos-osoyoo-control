@@ -8,6 +8,7 @@ DT = 0.4;
 
 % reference plan (imported from plan.m --> plan.mat)
 r_plan = matfile('plan_20_circle.mat').data;
+% r_plan = matfile('plan_60_sine_2.mat').data;
 
 car = Model();
 % car = Car();
@@ -45,7 +46,6 @@ while true
     hold on;
     
     % move the car to the next point on the reference plan
-    %     car = car.driveOn(DT);
     controller = controller.update(x, y, theta, x_target, y_target, theta_target);
     [v, gamma, controller] = controller.get_control();
     car = car.drive(v, gamma, DT);
@@ -57,10 +57,6 @@ while true
     quiver(x, y, ARROW_SCALE*cos(theta), ARROW_SCALE*sin(theta), 'Color', 'magenta', 'MaxHeadSize', ARROW_SCALE);
     quiver(x, y, ARROW_SCALE*cos(theta_target), ARROW_SCALE*sin(theta_target), 'Color', 'cyan', 'MaxHeadSize', ARROW_SCALE);
     plot(recorded_data(:,1), recorded_data(:,2), 'Color', 'b');
-    % if isa(controller, 'MPC_Control') || isa(controller, 'PurePursuit_Control')
-    %     plot(controller.prediction(:,1), controller.prediction(:,2), 'Color', 'g');
-    %     plot(controller.prediction(end,1), controller.prediction(end,2), 'Color', 'g', 'Marker','x', 'MarkerSize', 20);
-    % end
     hold off;
     drawnow;
     

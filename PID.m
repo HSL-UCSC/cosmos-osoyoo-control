@@ -37,11 +37,12 @@ classdef PID
         
         % update PID state
         function obj = update(obj, error, dt)
+            tmp = obj.error;
             obj.error = error;
             obj.error_diff = (obj.error - obj.error_prev) / dt;
             obj.error_sum = obj.error_sum + obj.error * dt;
             obj.error_int = obj.error_sum;
-            obj.error_prev = obj.error;
+            obj.error_prev = tmp;
         end
         
         % get control input
