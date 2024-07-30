@@ -24,7 +24,9 @@ classdef Model
     
     methods
         function obj = Model()
+            %%% CHANGE MODEL HERE %%%
             obj.systemModel = bicycleKinematics("WheelBase", obj.wheel_base, "VehicleSpeedRange", [0, obj.max_v], "MaxSteeringAngle", obj.max_gamma, "VehicleInputs",  "VehicleSpeedSteeringAngle");
+            %%% END MODEL HERE %%%
         end
         
         function obj = drive(obj, v, gamma, dt)

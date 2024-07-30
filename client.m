@@ -10,14 +10,18 @@ DT = 0.4;
 % reference plan (imported from plan.m --> plan.mat)
 r_plan = matfile('plan_20_circle_mm.mat').data;
 % r_plan = matfile('plan_60_sine_2.mat').data;
-%r_plan = [300; 400];
+%r_plan = [300; 400]; % use this to go to a point
 
-car = Model();
-% car = Car();
-% car.x = 0;
-% car.y = 0;
-controller = Basic_Control();
+%%% CHANGE CODE HERE
+%car = Model();
+car = Car();
+% controller = PID();
+controller = Basic_Control(); % use this to sanity check car build
+
+%%% END CODE HERE
+
 % controller = PID_Control();
+
 
 plot(r_plan(1,:),r_plan(2,:));
 
