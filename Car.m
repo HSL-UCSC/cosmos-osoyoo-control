@@ -1,8 +1,8 @@
 classdef Car
     properties
-        dllPath = fullfile('d:','StDroneControl','NatNetSDK','lib','x64','NatNetML.dll');
-        HostIP = '127.0.0.1';
-        Car_ID = 1; % Rigid body ID of the car from Motive
+        Car_ID = "Object1";
+        client;
+        
         udp = udpport; % intializing udp protocol
         theClient = nan;
         assemblyInfo = nan;
@@ -12,8 +12,8 @@ classdef Car
         v;
         gamma;
         max_delta_theta = pi/16;
-        wheel_base = 0.2;
-        max_v = 0.1;
+        wheel_base = 700;
+        max_v = 1000;
         buf_size = 100;
         values;
         index = 1;
@@ -22,10 +22,14 @@ classdef Car
     end
     methods
         function obj = Car()
-            obj.assemblyInfo = NET.addAssembly(obj.dllPath); % Add API function calls
-            obj.theClient = NatNetML.NatNetClientML(0);
-            % Create connection to localhost, data is now being streamed through client object
-            obj.theClient.Initialize(obj.HostIP, obj.HostIP);
+            % obj.assemblyInfo = NET.addAssembly(obj.dllPath); % Add API function calls
+            % obj.theClient = NatNetML.NatNetClientML(0);
+            % % Create connection to localhost, data is now being streamed through client object
+            % obj.theClient.Initialize(obj.HostIP, obj.HostIP);
+            
+            obj.client = Vicon.Client();
+            obj.client.destroy();
+            obj.client.initialize();
             
             obj.values = zeros(1, obj.buf_size);
         end
@@ -35,12 +39,12 @@ classdef Car
             %             disp(gamma);
             obj.v = v;
             obj.gamma = gamma;
-            if (v > 0)
-                v = min([85 + v*10*(255-85), 255]);
-            else
-                v = 0;
-            end
-            gamma = round(1 * rad2deg(gamma));
+            % if (v > 0)
+            %     v = min([v*255, 255]);
+            % else
+            %     v = 0;
+            % end
+            % gamma = round(1 * rad2deg(gamma));
             % gamma = gamma + 40;
             
             % send command to car
@@ -48,40 +52,54 @@ classdef Car
             Rspeed = v + (gamma * obj.wheel_base / 2);
             
             % Scale speeds to uint8 range (0-255)
-            Lspeed = (max(min(Lspeed * 255 / obj.max_v, 255), 0));
-            Rspeed = (max(min(Rspeed * 255 / obj.max_v, 255), 0));
+            Lspeed = round(max(min(Lspeed * 255 / obj.max_v, 255), 0));
+            Rspeed = round(max(min(Rspeed * 255 / obj.max_v, 255), 0));
             write(obj.udp, "L"+Lspeed, 'uint8', '192.168.0.161', 8888);
             write(obj.udp, "R"+Rspeed, 'uint8', '192.168.0.161', 8888);
         end
         
         function [x, y, theta, obj] = odom(obj)
-            % Retreving current position of car
-            [CarPos] = GetDronePosition(obj.theClient, obj.Car_ID);
-            
-            x = double(CarPos(2)); % Taking x point of the car
-            y = double(CarPos(3)); % Taking y point of the car
-            theta = double(mod(CarPos(7) - pi/2, 2 * pi)); % taking current heading angle of car
-            
-            % motive returns an inverted theta under certain conditions
-            if (y > obj.y)
-                theta = theta * -1;
-            end
-            %             if (abs(theta - obj.theta) > obj.max_delta_theta)
-            %                 theta = atan2(y - obj.y, x - obj.x);
-            %             end
-            
-            
-            % keep track of car's position
-            if (abs(x - obj.x) > 0.01)
-                obj.x = x;
-            end
-            if (abs(y - obj.y) > 0.01)
-                obj.y = y;
+            pose = obj.client.get_pose(obj.Car_ID, obj.Car_ID);
+            % these might be switched up
+            obj.x = double(pose.translation{1});
+            obj.y = double(pose.translation{2});
+            obj.theta = mod(double(pose.rotation{3}) - pi/2, 2*pi);
+
+            if (obj.theta > pi)
+                obj.theta = obj.theta - 2*pi;
             end
             
-            obj = obj.weighted_low_pass_filter(theta);
-            obj.theta = obj.filter_out;
-            %             disp(obj.theta);
+            x = obj.x;
+            y = obj.y;
+            theta = obj.theta;
+            
+            % % Retreving current position of car
+            % [CarPos] = GetDronePosition(obj.theClient, obj.Car_ID);
+            
+            % x = double(CarPos(2)); % Taking x point of the car
+            % y = double(CarPos(3)); % Taking y point of the car
+            % theta = double(mod(CarPos(7) - pi/2, 2 * pi)); % taking current heading angle of car
+            
+            % % motive returns an inverted theta under certain conditions
+            % if (y > obj.y)
+            %     theta = theta * -1;
+            % end
+            % %             if (abs(theta - obj.theta) > obj.max_delta_theta)
+            % %                 theta = atan2(y - obj.y, x - obj.x);
+            % %             end
+            
+            
+            % % keep track of car's position
+            % if (abs(x - obj.x) > 0.01)
+            %     obj.x = x;
+            % end
+            % if (abs(y - obj.y) > 0.01)
+            %     obj.y = y;
+            % end
+            
+            % obj = obj.weighted_low_pass_filter(theta);
+            % obj.theta = obj.filter_out;
+            % %             disp(obj.theta);
         end
         
         function obj = weighted_low_pass_filter(obj, input)

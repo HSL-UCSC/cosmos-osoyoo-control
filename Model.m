@@ -3,8 +3,9 @@
 
 classdef Model
     properties
-        wheel_base = 0.2;
-        max_v = 0.1;
+        wheel_base = 11;
+        max_v = 1000;
+        max_gamma = deg2rad(90);
     
         % bicycle model
         systemModel; % = bicycleKinematics("WheelBase", wheel_base, "VehicleSpeedRange", [-max_v, max_v], "MaxSteeringAngle", pi, "VehicleInputs", "VehicleSpeedSteeringAngle");
@@ -23,7 +24,7 @@ classdef Model
     
     methods
         function obj = Model()
-            obj.systemModel = bicycleKinematics("WheelBase", obj.wheel_base, "VehicleSpeedRange", [-obj.max_v, obj.max_v], "MaxSteeringAngle", pi/2, "VehicleInputs",  "VehicleSpeedSteeringAngle");
+            obj.systemModel = bicycleKinematics("WheelBase", obj.wheel_base, "VehicleSpeedRange", [0, obj.max_v], "MaxSteeringAngle", obj.max_gamma, "VehicleInputs",  "VehicleSpeedSteeringAngle");
         end
         
         function obj = drive(obj, v, gamma, dt)
@@ -34,6 +35,9 @@ classdef Model
             obj.theta = mod(obj.theta + dot(3) * dt, 2*pi);
             obj.v = v;
             obj.gamma = gamma;
+
+            [v gamma]
+            dot
 
             % % send command to car
             % Lspeed = v - (gamma * obj.wheel_base / 2);

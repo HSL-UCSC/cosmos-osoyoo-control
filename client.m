@@ -1,21 +1,23 @@
+
 clear;
 clc;
 close all;
 
-DIST_THRESHOLD = 0.5;
-ARROW_SCALE = 0.2;
+DIST_THRESHOLD = 200;
+ARROW_SCALE = 200;
 DT = 0.4;
 
 % reference plan (imported from plan.m --> plan.mat)
-r_plan = matfile('plan_20_circle.mat').data;
+r_plan = matfile('plan_20_circle_mm.mat').data;
 % r_plan = matfile('plan_60_sine_2.mat').data;
+%r_plan = [300; 400];
 
-car = Model();
-% car = Car();
+% car = Model();
+car = Car();
 % car.x = 0;
 % car.y = 0;
-controller = Basic_Control();
-% controller = PID_Control();
+% controller = Basic_Control();
+controller = PID_Control();
 
 plot(r_plan(1,:),r_plan(2,:));
 
@@ -41,7 +43,7 @@ while true
     plot(r_plan(1,:), r_plan(2,:), '-o', 'Color', 'k');
     xlabel('X')
     ylabel('Y')
-    xlim([-3 3])
+    ylim([-2000 2000])
     axis equal;
     hold on;
     
@@ -60,7 +62,7 @@ while true
     hold off;
     drawnow;
     
-    %pause(DT/2);
+    pause(DT/2);
     
 end
 car.drive(0, 0, 0);

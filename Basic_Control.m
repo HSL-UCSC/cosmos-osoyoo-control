@@ -1,14 +1,14 @@
 classdef Basic_Control
     properties
-        max_v = 0.1;
-        max_gamma = deg2rad(40);
+        max_v = 1000;
+        max_gamma = deg2rad(90);
         x;
         y;
         theta;
         x_target;
         y_target;
         theta_target;
-        wheel_base = 0.2; % Distance between the wheels
+        % wheel_base = 11; % Distance between the wheels
     end
     methods
         function obj = Basic_Control()
@@ -30,7 +30,11 @@ classdef Basic_Control
             if gamma > pi
                 gamma = gamma - 2 * pi;
             end
-            v = v + obj.max_v / 3 * abs(gamma / obj.max_gamma);
+            % v = v + obj.max_v / 3 * abs(gamma / obj.max_gamma);
+
+            % distance
+            % v
+            % gamma
         end
 
         function [out, obj] = done(obj)

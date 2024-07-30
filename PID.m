@@ -28,6 +28,9 @@ classdef PID
             obj.Ki = Ki;
             obj.Kd = Kd;
             obj.limit = limit;
+            
+            %%%%%%% ADD EXTRA VARIABLES AS DESIRED %%%%%%%
+            
             obj.error = 0;
             obj.error_prev = 0;
             obj.error_sum = 0;
@@ -35,20 +38,28 @@ classdef PID
             obj.error_int = 0;
         end
         
-        % update PID state
+        % update PID state with error and time step
         function obj = update(obj, error, dt)
+            %%%%%%% BEGIN CODE %%%%%%%
+
             tmp = obj.error;
             obj.error = error;
             obj.error_diff = (obj.error - obj.error_prev) / dt;
             obj.error_sum = obj.error_sum + obj.error * dt;
             obj.error_int = obj.error_sum;
             obj.error_prev = tmp;
+
+            %%%%%%% END CODE %%%%%%%
         end
         
-        % get control input
+        % return control output
         function u = get_control(obj)
+            %%%%%%% BEGIN CODE %%%%%%%
+
             u = obj.Kp * obj.error + obj.Ki * obj.error_int + obj.Kd * obj.error_diff;
             u = min(max(u, -obj.limit), obj.limit);
+
+            %%%%%%% END CODE %%%%%%%
         end
     end
 end
