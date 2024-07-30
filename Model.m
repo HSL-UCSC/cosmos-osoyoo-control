@@ -3,7 +3,7 @@
 
 classdef Model
     properties
-        wheel_base = 11;
+        wheel_base = 700;
         max_v = 1000;
         max_gamma = deg2rad(90);
     
@@ -29,24 +29,18 @@ classdef Model
         
         function obj = drive(obj, v, gamma, dt)
             % https://www.mathworks.com/help/nav/ref/bicyclekinematics.derivative.html
+            gamma = min(max(gamma, -obj.max_gamma), obj.max_gamma);
             dot = derivative(obj.systemModel, [obj.x, obj.y, obj.theta], [v, gamma]);
+            
             obj.x = obj.x + dot(1) * dt;
             obj.y = obj.y + dot(2) * dt;
             obj.theta = mod(obj.theta + dot(3) * dt, 2*pi);
+            if obj.theta > pi
+                obj.theta = obj.theta - 2*pi;
+            end
             obj.v = v;
             obj.gamma = gamma;
 
-            [v gamma]
-            dot
-
-            % % send command to car
-            % Lspeed = v - (gamma * obj.wheel_base / 2);
-            % Rspeed = v + (gamma * obj.wheel_base / 2);
-            % 
-            % % Scale speeds to uint8 range (0-255)
-            % Lspeed = (max(min(Lspeed * 255 / obj.max_v, 255), 0));
-            % Rspeed = (max(min(Rspeed * 255 / obj.max_v, 255), 0));
-            % [Lspeed, Rspeed]
         end
         
         function [x, y, theta, obj] = odom(obj)

@@ -12,12 +12,12 @@ r_plan = matfile('plan_20_circle_mm.mat').data;
 % r_plan = matfile('plan_60_sine_2.mat').data;
 %r_plan = [300; 400];
 
-% car = Model();
-car = Car();
+car = Model();
+% car = Car();
 % car.x = 0;
 % car.y = 0;
-% controller = Basic_Control();
-controller = PID_Control();
+controller = Basic_Control();
+% controller = PID_Control();
 
 plot(r_plan(1,:),r_plan(2,:));
 
