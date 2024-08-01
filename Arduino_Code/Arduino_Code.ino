@@ -9,6 +9,7 @@
  */
 /*Declare L298N Dual H-Bridge Motor Controller directly since there is not a library to load.*/
 #include <WiFiEspUdp.h>
+#include <ctype.h>
 WiFiEspUDP Udp;
 unsigned int localPort = 8888;  // local port to listen on
 
@@ -317,9 +318,22 @@ void loop() {
     String packet = String(packetBuffer);
     Serial.println("Received packet: " + packet);
 
+    if (packet.length() > 4) {
+      Serial.println("Error: Packet too long");
+      return;
+    }
+
     // Determine whether the packet is for left or right motor speed
-    char motorIdentifier = packet.charAt(0);
+    char motorIdentifier = packet.charAt(0);    
     String valueStr = packet.substring(1);
+
+    for (int i = 0; i < valueStr.length(); i++) {
+      if (!isdigit(valueStr.charAt(i))) {
+        Serial.println("Error: speed value contains a non-numeric character.");
+        return;
+      }
+    }
+    
     int speedValue = valueStr.toInt();
 
     if (motorIdentifier == 'L' || motorIdentifier == 'R') {
@@ -346,7 +360,7 @@ void loop() {
       Serial.println("Error: Invalid motor identifier.");
     }
   } else {
-    Serial.println("No packet received.");
+//    Serial.println("No packet received.");
   }
 }
 
