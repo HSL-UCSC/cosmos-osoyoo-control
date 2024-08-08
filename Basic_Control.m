@@ -1,7 +1,7 @@
 classdef Basic_Control
     properties
         max_v = 1000;
-        max_gamma = deg2rad(90);
+        max_gamma = deg2rad(30);
         x;
         y;
         theta;
@@ -30,6 +30,7 @@ classdef Basic_Control
             if gamma > pi
                 gamma = gamma - 2 * pi;
             end
+            gamma = min(obj.max_gamma, max(-obj.max_gamma, gamma));
             % v = v + obj.max_v / 3 * abs(gamma / obj.max_gamma);
 
             % distance

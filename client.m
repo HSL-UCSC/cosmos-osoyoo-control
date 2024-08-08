@@ -1,4 +1,3 @@
-
 clear;
 clc;
 close all;
@@ -13,8 +12,9 @@ r_plan = matfile('plan_20_circle_mm.mat').data;
 %r_plan = [300; 400]; % use this to go to a point
 
 %%% CHANGE CODE HERE
-%car = Model();
-car = Car();
+% car = Model();
+% car = OsoyooV2();
+car = Deepracer();
 % controller = PID();
 controller = Basic_Control(); % use this to sanity check car build
 
