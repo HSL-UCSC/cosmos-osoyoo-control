@@ -2,6 +2,8 @@ clear;
 clc;
 close all;
 
+pe = pyenv(Version="C:\Users\espott\AppData\Local\Programs\Python\Python311\pythonw.exe");
+
 DIST_THRESHOLD = 200;
 ARROW_SCALE = 200;
 DT = 0.4;
@@ -16,7 +18,7 @@ r_plan = matfile('plan_20_circle_mm.mat').data;
 % car = OsoyooV2();
 car = Deepracer();
 % controller = PID();
-controller = Basic_Control(); % use this to sanity check car build
+controller = Basic_Control(car.max_v, car.max_gamma); % use this to sanity check car build
 
 %%% END CODE HERE
 

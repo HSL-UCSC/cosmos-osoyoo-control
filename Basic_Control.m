@@ -1,7 +1,7 @@
 classdef Basic_Control
     properties
-        max_v = 1000;
-        max_gamma = deg2rad(30);
+        max_v;
+        max_gamma;
         x;
         y;
         theta;
@@ -11,7 +11,9 @@ classdef Basic_Control
         % wheel_base = 11; % Distance between the wheels
     end
     methods
-        function obj = Basic_Control()
+        function obj = Basic_Control(max_v, max_gamma)
+            obj.max_v = max_v;
+            obj.max_gamma = max_gamma;
         end
 
         function obj = update(obj, x, y, theta, x_target, y_target, theta_target)
