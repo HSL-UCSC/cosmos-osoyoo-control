@@ -1,4 +1,4 @@
-classdef Car
+classdef OsoyooV2
     properties
         Car_ID = "Object1";
         client;
@@ -21,7 +21,7 @@ classdef Car
         filter_out = 0;
     end
     methods
-        function obj = Car()
+        function obj = OsoyooV2()
             obj.client = Vicon.Client();
             obj.client.destroy();
             obj.client.initialize();
@@ -49,7 +49,7 @@ classdef Car
             % these might be switched up
             obj.x = double(pose.translation{1});
             obj.y = double(pose.translation{2});
-            obj.theta = mod(double(pose.rotation{3}), 2*pi); % if car is drifting in wrong direction, add a 90 degree offset +/-
+            obj.theta = mod(double(pose.rotation{3}) - pi/2, 2*pi); % if car is drifting in wrong direction, add a 90 degree offset +/-
 
             if (obj.theta > pi)
                 obj.theta = obj.theta - 2*pi;
