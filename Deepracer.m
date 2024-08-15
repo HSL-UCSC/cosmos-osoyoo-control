@@ -13,18 +13,21 @@ classdef Deepracer
         max_delta_theta = pi/16;
         wheel_base = 700;
         max_v = 500;
+        min_v = 0;
         max_gamma = deg2rad(30);
         buf_size = 100;
         values;
         index = 1;
         buf_init_size = 0;
         filter_out = 0;
+
+        reverse_driving = false;
     end
     methods
         function obj = Deepracer()
-            % obj.vicon_client = Vicon.Client();
-            % obj.vicon_client.destroy();
-            % obj.vicon_client.initialize();
+            obj.vicon_client = Vicon.Client();
+            obj.vicon_client.destroy();
+            obj.vicon_client.initialize();
 
             obj.dr_client = py.awsdeepracer_control.Client(password="WThn8DOx", ip="128.114.59.181");
             obj.dr_client.set_manual_mode();
@@ -34,32 +37,51 @@ classdef Deepracer
         end
         
         function obj = drive(obj, v, gamma, ~)
+            if v > obj.max_v
+                v = obj.max_v;
+            elseif v < obj.min_v
+                v = obj.min_v;
+            end
+
             obj.v = v;
             obj.gamma = gamma;
 
             [v gamma]
 
-            v = v * 1.0 / obj.max_v;
-            gamma = gamma * 1.0 / obj.max_gamma;
+            v = v * -1.0 / obj.max_v;
+            gamma = gamma * -1.0 / obj.max_gamma;
 
-            v = typecast(v, 'uint8');
-            gamma = typecast(gamma, 'uint8');
+            if obj.reverse_driving
+                v = -v;
+                gamma = -gamma;
+            end
+
+            % v = typecast(v, 'uint8');
+            % gamma = typecast(gamma, 'uint8');
+
+            [v gamma obj.max_v / 1000.0]
             
             % send command to car
-            obj.dr_client.move(v, gamma, obj.max_v / 1000.0);
+            obj.dr_client.move(gamma, v, obj.max_v / 1000.0);
             % write(obj.udp, [v gamma], 'uint8', '128.114.59.181', 8888);
         end
         
         function [x, y, theta, obj] = odom(obj)
-            % pose = obj.vicon_client.get_pose(obj.Car_ID, obj.Car_ID);
-            % % these might be switched up
-            % obj.x = double(pose.translation{1});
-            % obj.y = double(pose.translation{2});
-            % obj.theta = mod(double(pose.rotation{3}) - pi/2, 2*pi); % if car is drifting in wrong direction, add a 90 degree offset +/-
-            % 
-            % if (obj.theta > pi)
-            %     obj.theta = obj.theta - 2*pi;
-            % end
+            pose = obj.vicon_client.get_pose(obj.Car_ID, obj.Car_ID);
+            % these might be switched up
+            obj.x = double(pose.translation{1});
+            obj.y = double(pose.translation{2});
+
+            t = double(pose.rotation{3});
+            if obj.reverse_driving
+                t = t + pi;
+            end
+
+            obj.theta = mod(t, 2*pi);
+            
+            if (obj.theta > pi)
+                obj.theta = obj.theta - 2*pi;
+            end
             
             x = obj.x;
             y = obj.y;

@@ -27,13 +27,15 @@ classdef Basic_Control
 
         function [v, gamma, obj] = get_control(obj)
             distance = hypot(obj.x_target - obj.x, obj.y_target - obj.y);
-            v = min(obj.max_v * 2 / 3, distance);
+            v = min(obj.max_v, distance);
             gamma = mod(obj.theta_target - obj.theta, 2 * pi);
             if gamma > pi
                 gamma = gamma - 2 * pi;
             end
             gamma = min(obj.max_gamma, max(-obj.max_gamma, gamma));
             % v = v + obj.max_v / 3 * abs(gamma / obj.max_gamma);
+
+            % v = min(v, (1 - ((abs(gamma) / obj.max_gamma) / 4)) * obj.max_v);
 
             % distance
             % v

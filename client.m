@@ -4,7 +4,7 @@ close all;
 
 pe = pyenv(Version="C:\Users\espott\AppData\Local\Programs\Python\Python311\pythonw.exe");
 
-DIST_THRESHOLD = 200;
+DIST_THRESHOLD = 600;
 ARROW_SCALE = 200;
 DT = 0.4;
 
@@ -49,7 +49,7 @@ while true
     plot(r_plan(1,:), r_plan(2,:), '-o', 'Color', 'k');
     xlabel('X')
     ylabel('Y')
-    ylim([-2000 2000])
+    ylim([-3000 3000])
     axis equal;
     hold on;
     
