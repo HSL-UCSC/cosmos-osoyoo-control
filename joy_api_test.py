@@ -41,6 +41,8 @@ try:
             f"Sending {throttle}, {angle}, {client.move(angle, -1.0 * throttle, 1.0)}"
         )
 
+    armed = True
+
     # read back the answer
     print("Read the data")
     while True:
@@ -48,32 +50,29 @@ try:
         if not d:
             continue
 
-        # print(d)
         r_x = d[3] | (d[4] << 8)
         r_y = d[5] | (d[6] << 8)
 
         l_y = d[7] | (d[8] << 8)
         l_x = d[9] | (d[10] << 8)
 
-        r_x /= 1986
-
-        r_y /= 2007
-
-        l_x -= 45
-        l_x /= 2047 - 45
-
-        l_y /= 2008
-
-        reverse = (d[11] | (d[12] << 8)) != 0
+        r_x /= 2048
+        r_y /= 2048
+        l_x /= 2048
+        l_y /= 2048
 
         arm = (d[13] | (d[14] << 8)) != 0
 
-        if not arm:
-            send(0, 0)
-        elif reverse:
-            send(-l_y, (r_x - 0.5) * 2)
-        else:
-            send(l_y, (r_x - 0.5) * 2)
+        if armed and not arm:
+            client.stop_car()
+            armed = False
+            print("Stopping the car")
+        elif arm:
+            if not armed:
+                armed = True
+                client.start_car()
+                print("Starting the car")
+            send((r_y - 0.5) * 2, (r_x - 0.5) * 2)
 
 except IOError as ex:
     print(ex)
