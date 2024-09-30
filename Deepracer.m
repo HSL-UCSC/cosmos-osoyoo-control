@@ -12,7 +12,7 @@ classdef Deepracer
         gamma;
         max_delta_theta = pi/16;
         wheel_base = 700;
-        max_v = 500;
+        max_v = 200;
         min_v = 0;
         max_gamma = deg2rad(30);
         buf_size = 100;
@@ -37,18 +37,15 @@ classdef Deepracer
         end
         
         function obj = drive(obj, v, gamma, ~)
-            if v > obj.max_v
-                v = obj.max_v;
-            elseif v < obj.min_v
-                v = obj.min_v;
-            end
+            v = clip(v, obj.min_v, obj.max_v);
+            gamma = clip(gamma, -obj.max_gamma, obj.max_gamma);
 
             obj.v = v;
             obj.gamma = gamma;
 
             [v gamma]
 
-            v = v * -1.0 / obj.max_v;
+            v = v * -1.0 / 1000.0;
             gamma = gamma * -1.0 / obj.max_gamma;
 
             if obj.reverse_driving
@@ -59,10 +56,10 @@ classdef Deepracer
             % v = typecast(v, 'uint8');
             % gamma = typecast(gamma, 'uint8');
 
-            [v gamma obj.max_v / 1000.0]
+            [v gamma]
             
             % send command to car
-            obj.dr_client.move(gamma, v, obj.max_v / 1000.0);
+            obj.dr_client.move(gamma, v, 1.0);
             % write(obj.udp, [v gamma], 'uint8', '128.114.59.181', 8888);
         end
         

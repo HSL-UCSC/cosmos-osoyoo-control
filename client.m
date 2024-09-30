@@ -18,7 +18,9 @@ r_plan = matfile('plan_20_circle_mm.mat').data;
 % car = OsoyooV2();
 car = Deepracer();
 % controller = PID();
-controller = Basic_Control(car.max_v, car.max_gamma); % use this to sanity check car build
+% controller = Basic_Control(car.max_v, car.max_gamma); % use this to sanity check car build
+% controller = PurePursuit_Control(r_plan', 100, car.max_v, 4*car.max_gamma);
+controller = CustomPurePursuit_Control(DIST_THRESHOLD, car.max_v, car.max_gamma, 4*car.max_gamma);
 
 %%% END CODE HERE
 
@@ -34,21 +36,27 @@ disp(r_plan(2, 1));
 index = 1;
 
 recorded_data = [];
-
 while true
     
     [x, y, theta, car] = car.odom();
+
+    if y > 3000 || y < -3000 || x > 2000 || x < -2000
+        car.dr_client.stop_car()
+        disp("out of bounds");
+        break
+    end
     
     % find if the car is close enough to the next point on the reference plan
     [x_target, y_target, theta_target, index] = motion_plan(x, y, theta, r_plan, index, DIST_THRESHOLD);
     [done, controller] = controller.done();
     if index == -1 || done
+        disp("done")
         break;
     end
     
     plot(r_plan(1,:), r_plan(2,:), '-o', 'Color', 'k');
-    xlabel('X')
-    ylabel('Y')
+    xlabel('Y')
+    ylabel('X')
     ylim([-3000 3000])
     axis equal;
     hold on;
@@ -87,7 +95,7 @@ ylabel('X');
 
 subplot(2,1,2);
 plot(recorded_data(:,2));
-title('Car Z');
+title('Car Y');
 xlabel('Time');
 ylabel('Z');
 
