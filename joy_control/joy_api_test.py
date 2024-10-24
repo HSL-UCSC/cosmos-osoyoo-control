@@ -4,7 +4,7 @@ import json
 import awsdeepracer_control as dr
 import hid
 
-ip = "128.114.59.181"
+ip = "128.114.59.239"
 
 try:
     # sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -42,6 +42,7 @@ try:
         )
 
     armed = True
+    turning = True
 
     # read back the answer
     print("Read the data")
@@ -66,6 +67,13 @@ try:
 
             no_turning = (d[11] | (d[12] << 8)) == 0
 
+            if turning and no_turning:
+                turning = False
+                print("No turning")
+            elif not turning and not no_turning:
+                turning = True
+                print("Yes turning")
+
             if armed and not arm:
                 client.stop_car()
                 armed = False
@@ -75,7 +83,7 @@ try:
                     armed = True
                     client.start_car()
                     print("Starting the car")
-                send((r_y - 0.5) * 2 * l_y, 0 if no_turning else (r_x - 0.5) * 2)
+                send((r_y - 0.5) * 2 * l_y, (r_x - 0.5) * 2 if turning else 0)
             elif not armed and d[0] & 0x2:
                 client.stop_car()
                 print("Stopping the car")
