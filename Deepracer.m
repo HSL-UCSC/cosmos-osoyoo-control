@@ -1,6 +1,6 @@
 classdef Deepracer
     properties
-        Car_ID = "Object1";
+        Car_ID = "Object3";
         vicon_client;
         dr_client;
         
@@ -29,7 +29,7 @@ classdef Deepracer
             obj.vicon_client.destroy();
             obj.vicon_client.initialize();
 
-            obj.dr_client = py.awsdeepracer_control.Client(password="WThn8DOx", ip="128.114.59.181");
+            obj.dr_client = py.awsdeepracer_control.Client(password="WThn8DOx", ip="128.114.59.239");
             obj.dr_client.set_manual_mode();
             obj.dr_client.start_car();
             
