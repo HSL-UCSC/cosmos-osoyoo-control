@@ -4,12 +4,12 @@ import json
 import awsdeepracer_control as dr
 import hid
 
-h = None
-ip = "128.114.59.181"
+ip = "128.114.59.239"
 
 try:
     # sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     client = dr.Client(password="WThn8DOx", ip=ip)
+    print("Connected to the car")
     info = {
         "USB connection": client.get_is_usb_connected(),
         "Battery level": client.get_battery_status(),
@@ -42,37 +42,55 @@ try:
         )
 
     armed = True
+    turning = True
 
     # read back the answer
     print("Read the data")
     while True:
-        d = h.read(64)
-        if not d:
-            continue
+        try:
+            d = h.read(64)
+            if not d:
+                continue
 
-        r_x = d[3] | (d[4] << 8)
-        r_y = d[5] | (d[6] << 8)
+            r_x = d[3] | (d[4] << 8)
+            r_y = d[5] | (d[6] << 8)
 
-        l_y = d[7] | (d[8] << 8)
-        l_x = d[9] | (d[10] << 8)
+            l_y = d[7] | (d[8] << 8)
+            l_x = d[9] | (d[10] << 8)
 
-        r_x /= 2048
-        r_y /= 2048
-        l_x /= 2048
-        l_y /= 2048
+            r_x /= 2048
+            r_y /= 2048
+            l_x /= 2048
+            l_y /= 2048
 
-        arm = (d[13] | (d[14] << 8)) != 0
+            arm = (d[13] | (d[14] << 8)) != 0
 
-        if armed and not arm:
-            client.stop_car()
+            no_turning = (d[11] | (d[12] << 8)) == 0
+
+            if turning and no_turning:
+                turning = False
+                print("No turning")
+            elif not turning and not no_turning:
+                turning = True
+                print("Yes turning")
+
+            if armed and not arm:
+                client.stop_car()
+                armed = False
+                print("Stopping the car")
+            elif arm:
+                if not armed:
+                    armed = True
+                    client.start_car()
+                    print("Starting the car")
+                send((r_y - 0.5) * 2 * l_y, (r_x - 0.5) * 2 if turning else 0)
+            elif not armed and d[0] & 0x2:
+                client.stop_car()
+                print("Stopping the car")
+
+        except json.JSONDecodeError:
+            client = dr.Client(password="WThn8DOx", ip=ip)
             armed = False
-            print("Stopping the car")
-        elif arm:
-            if not armed:
-                armed = True
-                client.start_car()
-                print("Starting the car")
-            send((r_y - 0.5) * 2, (r_x - 0.5) * 2)
 
 except IOError as ex:
     print(ex)
