@@ -1,4 +1,4 @@
-# osoyoo-cat-and-mouse
+# cosmos-osoyoo-control
 
 Need to install the following:
 - Install Python 3.11 from Python.org
