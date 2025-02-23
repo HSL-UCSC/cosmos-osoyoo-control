@@ -10,6 +10,7 @@ classdef CustomPurePursuit < handle
         Speed = 0; % Current speed of the vehicle
         DynamicLookaheadDistance; % Calculated dynamic lookahead distance based on speed
         WaypointIndex = 1;
+        DT = 0.4;
     end
     
     methods
@@ -74,9 +75,15 @@ classdef CustomPurePursuit < handle
                 return;
             end
             
-            angleToGoal = atan2(lookAheadPoint(2) - currentPose(2), lookAheadPoint(1) - currentPose(1));
-            steeringAngle = angleToGoal - currentPose(3);
-            steeringAngle = atan2(sin(steeringAngle), cos(steeringAngle));
+            dx = lookAheadPoint(1) - currentPose(1);
+            dy = lookAheadPoint(2) - currentPose(2);
+            angleToGoal = atan2(dy, dx);
+            distanceToGoal = sqrt(dx^2 + dy^2);
+            % steeringAngle = angleToGoal - currentPose(3);
+            steeringAngle = atan2(-(0.18)*angleToGoal, distanceToGoal);
+            
+            % isnt this doing atan(tan(theta))???
+            % steeringAngle = atan2(sin(steeringAngle), cos(steeringAngle));
 
             steeringAngle = clip(steeringAngle, -obj.MaxSteeringAngle, obj.MaxSteeringAngle);
 
@@ -85,7 +92,9 @@ classdef CustomPurePursuit < handle
             
 %             omega = (2 * obj.DesiredLinearVelocity / obj.DynamicLookaheadDistance) * sin(steeringAngle);
 %             omega = max(min(omega, obj.MaxAngularVelocity), -obj.MaxAngularVelocity);
-            v = obj.DesiredLinearVelocity * (1 - 0.9 * steeringAngle / obj.MaxSteeringAngle);
+            % v = obj.DesiredLinearVelocity * (1 - 0.9 * steeringAngle / obj.MaxSteeringAngle);
+            v = -(0.18)*angleToGoal / (obj.DT*tan(steeringAngle));
+            % v = distanceToGoal / obj.DT;
             omega = steeringAngle;
             [v omega obj.DesiredLinearVelocity obj.MaxSteeringAngle]
         end

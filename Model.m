@@ -3,7 +3,7 @@
 
 classdef Model
     properties
-        wheel_base = 700;
+        wheel_base = 0.18;
         max_v = 1000;
         max_gamma = deg2rad(90);
     
@@ -36,6 +36,7 @@ classdef Model
             
             obj.x = obj.x + dot(1) * dt;
             obj.y = obj.y + dot(2) * dt;
+            % theta = mod(theta + pi + dot(3)*dt, 2*pi) - pi;
             obj.theta = mod(obj.theta + dot(3) * dt, 2*pi);
             if obj.theta > pi
                 obj.theta = obj.theta - 2*pi;

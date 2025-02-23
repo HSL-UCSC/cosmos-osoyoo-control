@@ -1,6 +1,6 @@
 classdef Deepracer
     properties
-        Car_ID = "Object3";
+        Car_ID = "Object1";
         vicon_client;
         dr_client;
         
@@ -45,7 +45,7 @@ classdef Deepracer
 
             [v gamma]
 
-            v = v * -1.0 / 1000.0;
+            v = v * -1.0 / 10000.0;
             gamma = gamma * -1.0 / obj.max_gamma;
 
             if obj.reverse_driving
