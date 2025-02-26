@@ -1,4 +1,4 @@
-# cosmos-osoyoo-control
+# cosmos-osoyoo-control (DeepRacer)
 
 Need to install the following:
 - Install Python 3.11 from Python.org
